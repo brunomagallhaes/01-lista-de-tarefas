@@ -1,30 +1,32 @@
 import { View, Text, TouchableOpacity } from "react-native";
-
 import { styles } from "../styles";
+import Feather from '@expo/vector-icons/Feather';
+import AntDesign from '@expo/vector-icons/AntDesign'
+
+interface TarefaType {
+    name: string;
+    completed: boolean;
+}
 
 type Props = {
-    name: string;
+    tarefa: TarefaType;
     onRemove: () => void;
     onComplete: () => void;
 }
 
-export function Tarefa({ name, onRemove, onComplete }: Props) {
+export function Tarefa({ tarefa, onRemove, onComplete }: Props) {
     return (
         <View style={styles.container}>
             <Text style={styles.name}>
-                {name}
+                {tarefa.name}
             </Text>
 
-            <TouchableOpacity style={styles.button} onPress={onComplete}>
-                <Text style={styles.buttonText}>
-                    &#10004;
-                </Text>
+            <TouchableOpacity style={styles.button2} onPress={onComplete}>
+                { tarefa.completed && <AntDesign name="checkcircle" size={18} color="#8284fa" /> }
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button} onPress={onRemove}>
-                <Text style={styles.buttonText}>
-                    &#10006;
-                </Text>
+                <Feather name="trash-2" size={22} color="grey" />
             </TouchableOpacity>
         </View>
     )

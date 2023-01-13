@@ -1,20 +1,29 @@
 import React, { useState } from 'react';
-import { Text, View, TextInput, TouchableOpacity, FlatList, Alert } from 'react-native';
-
+import { Text, View, TextInput, TouchableOpacity, FlatList, Alert, Image } from 'react-native';
 import { Tarefa } from '../../components/Tarefas';
-
 import { styles } from '../styles';
+import EvilIcons from '@expo/vector-icons/EvilIcons';
+
+interface TarefaType {
+  name: string;
+  completed: boolean;
+}
 
 export function Home() {
-  const [tarefas, setTarefas] = useState<string[]>([]);
+  const [tarefas, setTarefas] = useState<TarefaType[]>([]);
   const [tarefaName, setTarefasName] = useState('');
 
   function handleTarefaAdd() {
-    if (tarefas.includes(tarefaName)) {
+    if (tarefas.filter(tarefa => tarefa.name === tarefaName).length > 0) {
       return Alert.alert("Tarefa existe", "Essa tarefa ja existe na lista.");
     }
 
-    setTarefas(prevState => [...prevState, tarefaName]);
+    const novaTarefa = {
+      name: tarefaName,
+      completed: false
+    };
+
+    setTarefas(prevState => [...prevState, novaTarefa]);
     setTarefasName('');
   }
 
@@ -22,7 +31,7 @@ export function Home() {
     Alert.alert("Remover", `Remover a Tarefa ${name} ?`, [
       {
         text: "Sim",
-        onPress: () => setTarefas(prevState => prevState.filter(tarefa => tarefa !== name))
+        onPress: () => setTarefas(prevState => prevState.filter(tarefa => tarefa.name !== name))
       },
       {
         text: "Não",
@@ -32,14 +41,20 @@ export function Home() {
   }
 
   function handleTarefaComplete(name: string) {
+    const newTarefas = tarefas.map((tarefa) => {
+      if (tarefa.name === name) {
+        tarefa.completed = !tarefa.completed;
+      }
 
+      return tarefa;
+    });
+
+    setTarefas(prevState => newTarefas);
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.eventName}>
-        TODO LIST
-      </Text>
+      <Image style={styles.imagem} source={require('../../assets/logodois.png')} />
 
       <View style={styles.form}>
         <TextInput
@@ -52,29 +67,37 @@ export function Home() {
 
         <TouchableOpacity style={styles.button} onPress={handleTarefaAdd}>
           <Text style={styles.buttonText}>
-            Adicionar
+            <EvilIcons name="plus" size={30} color="white" />
           </Text>
         </TouchableOpacity>
       </View>
 
       <FlatList
         data={tarefas}
-        keyExtractor={item => item}
-        renderItem={({ item }) => (
+        keyExtractor={tarefa => tarefa.name}
+        renderItem={({ item: tarefa }) => (
           <Tarefa
-            key={item}
-            name={item}
-            onRemove={() => handleTarefaRemove(item)}
-            onComplete={() => handleTarefaComplete(item)}
+            key={tarefa.name}
+            tarefa={tarefa}
+            onRemove={() => handleTarefaRemove(tarefa.name)}
+            onComplete={() => handleTarefaComplete(tarefa.name)}
           />
         )}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (
           <Text style={styles.listEmptyText}>
-            Não tem nenhuma tarefa adicionada ? Adicione tarefas a sua lista.
+            Você ainda não tem tarefas cadastradas Crie tarefas e organize seus itens a fazer
           </Text>
         )}
       />
     </View>
-  )
-}
+  );
+};
+
+
+
+
+
+
+
+
